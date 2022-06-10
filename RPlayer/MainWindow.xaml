@@ -1,0 +1,224 @@
+﻿<Window
+    x:Class="RPlayer.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:RPlayer"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+    Title="MainWindow"
+    Width="1200"
+    Height="650"
+    Loaded="Window_Loaded"
+    Style="{StaticResource ContentBase}"
+    mc:Ignorable="d">
+    <Grid Margin="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="10*" />
+            <RowDefinition Height="2*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*" />
+            <ColumnDefinition Width="8*" />
+            <ColumnDefinition Width="2*" />
+        </Grid.ColumnDefinitions>
+
+        <ToolBarTray Grid.ColumnSpan="3">
+            <ToolBar ClipToBounds="False" Style="{StaticResource MaterialDesignToolBar}">
+                <Button
+                    x:Name="bAdd"
+                    Click="bAdd_Click"
+                    Content="{md:PackIcon Kind=MusicNotePlus}"
+                    ToolTip="添加音乐" />
+                <Button
+                    x:Name="bSave"
+                    Click="bSave_Click"
+                    Content="{md:PackIcon Kind=ContentSave}"
+                    ToolTip="保存列表" />
+                <Separator />
+                <!--
+                    when badging in a toolbar, make sure the parent ToolBar.ClipToBounds="False", and
+                    manually apply the button style
+                -->
+                <md:Badged
+                    Badge="{md:PackIcon Alert}"
+                    CornerRadius="5"
+                    ToolBar.OverflowMode="AsNeeded">
+                    <Button
+                        Content="{md:PackIcon Kind=AirplaneTakeoff}"
+                        Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
+                        ToolTip="Badge it up!" />
+                </md:Badged>
+                <Separator />
+                <Button
+                    x:Name="bPlay"
+                    Click="bPlay_Click"
+                    Content="{md:PackIcon Kind=Play}" />
+                <Button
+                    x:Name="bPause"
+                    Click="bPause_Click"
+                    Content="{md:PackIcon Kind=Pause}" />
+                <Button
+                    x:Name="bReplay"
+                    Click="bReplay_Click"
+                    Content="{md:PackIcon Kind=Replay}" />
+                <Button
+                    x:Name="bStop"
+                    Click="bStop_Click"
+                    Content="{md:PackIcon Kind=Stop}" />
+                <ListBox x:Name="lbMute" SelectionChanged="lbMute_SelectionChanged">
+                    <ListBoxItem Content="{md:PackIcon Kind=VolumeMute}" />
+                </ListBox>
+                <Separator />
+                <ListBox SelectionMode="Extended">
+                    <ListBox.ToolTip>
+                        <StackPanel>
+                            <TextBlock Text="MaterialDesignToolToggleListBox" />
+                            <TextBlock Text="Multiple selection" />
+                            <TextBlock Text="ListBoxAssist.IsToggle allows more natural toggle behaviour" />
+                        </StackPanel>
+                    </ListBox.ToolTip>
+                    <ListBoxItem Content="{md:PackIcon Kind=FormatBold}" />
+                    <ListBoxItem Content="{md:PackIcon Kind=FormatItalic}" />
+                    <ListBoxItem Content="{md:PackIcon Kind=FormatUnderline}" />
+                </ListBox>
+                <Separator />
+                <Label VerticalAlignment="Center" Content="Font size:" />
+                <ComboBox>
+                    <ComboBoxItem Content="10" />
+                    <ComboBoxItem Content="12" IsSelected="True" />
+                    <ComboBoxItem Content="14" />
+                    <ComboBoxItem Content="16" />
+                </ComboBox>
+                <CheckBox Content="Check" />
+                <Button
+                    Content="{md:PackIcon Kind=Hotel}"
+                    ToolBar.OverflowMode="Always"
+                    ToolTip="Take a nap" />
+                <RadioButton Content="Radio" GroupName="XXX" />
+                <RadioButton Content="Ga Ga" GroupName="XXX" />
+                <RadioButton
+                    Content="{md:PackIcon Kind=Radio}"
+                    GroupName="YYY"
+                    Style="{StaticResource MaterialDesignToolRadioButton}" />
+                <RadioButton
+                    Content="{md:PackIcon Kind=EmoticonPoop}"
+                    GroupName="YYY"
+                    Style="{StaticResource MaterialDesignToolRadioButton}" />
+                <ToggleButton />
+            </ToolBar>
+        </ToolBarTray>
+        <DataGrid
+            x:Name="dgMedia"
+            Grid.Row="1"
+            Grid.Column="0"
+            Grid.ColumnSpan="3"
+            AutoGenerateColumns="False">
+            <DataGrid.Resources>
+                <Style x:Key="TextContentCenter" TargetType="TextBlock">
+                    <Setter Property="VerticalAlignment" Value="Center" />
+                </Style>
+            </DataGrid.Resources>
+            <DataGrid.Columns>
+                <DataGridTemplateColumn Header="指示灯">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <local:MediaLED State="{Binding State}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Go">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button
+                                Width="25"
+                                Height="25"
+                                Click="bPlayItem_Click"
+                                Content="{md:PackIcon Kind=Play}"
+                                Style="{StaticResource MaterialDesignFloatingActionMiniButton}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn
+                    Binding="{Binding Path=Name}"
+                    ElementStyle="{StaticResource TextContentCenter}"
+                    Header="文件名" />
+                <DataGridTextColumn
+                    Binding="{Binding Path=Duration}"
+                    ElementStyle="{StaticResource TextContentCenter}"
+                    Header="时长"
+                    IsReadOnly="True" />
+                <DataGridTemplateColumn Header="结束后...">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <ComboBox Loaded="cbEndAction_Loaded" SelectionChanged="cbEndAction_SelectionChanged">
+                                <ComboBoxItem>停止</ComboBoxItem>
+                                <ComboBoxItem>下一个</ComboBoxItem>
+                                <ComboBoxItem>循环</ComboBoxItem>
+                            </ComboBox>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="操作">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <Button
+                                    Width="25"
+                                    Height="25"
+                                    Margin="2,0,2,0"
+                                    Click="bMoveUp_Click"
+                                    Content="{md:PackIcon Kind=ArrowUp}"
+                                    Style="{StaticResource MaterialDesignFloatingActionMiniButton}" />
+                                <Button
+                                    Width="25"
+                                    Height="25"
+                                    Margin="2,0,2,0"
+                                    Click="bMoveDown_Click"
+                                    Content="{md:PackIcon Kind=ArrowDown}"
+                                    Style="{StaticResource MaterialDesignFloatingActionMiniButton}" />
+                                <Button
+                                    Width="25"
+                                    Height="25"
+                                    Margin="2,0,2,0"
+                                    Click="bItemDelete_Click"
+                                    Content="{md:PackIcon Kind=Delete}"
+                                    Style="{StaticResource MaterialDesignFloatingActionMiniButton}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+        <Grid Grid.Row="2" Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition Height="25" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <Slider
+                x:Name="sPos"
+                Grid.Row="0"
+                Grid.ColumnSpan="2"
+                VerticalAlignment="Center"
+                IsEnabled="False"
+                Maximum="1.0" />
+            <Label
+                x:Name="lCurPos"
+                Grid.Row="1"
+                Grid.Column="0"
+                HorizontalAlignment="Left"
+                Content="00:00:00" />
+            <Label
+                x:Name="lTotPos"
+                Grid.Row="1"
+                Grid.Column="1"
+                HorizontalAlignment="Right"
+                Content="00:00:00.0000000" />
+        </Grid>
+    </Grid>
+</Window>
