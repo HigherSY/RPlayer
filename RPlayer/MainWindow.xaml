@@ -41,7 +41,7 @@
                     when badging in a toolbar, make sure the parent ToolBar.ClipToBounds="False", and
                     manually apply the button style
                 -->
-                <md:Badged
+                <!--<md:Badged
                     Badge="{md:PackIcon Alert}"
                     CornerRadius="5"
                     ToolBar.OverflowMode="AsNeeded">
@@ -50,7 +50,7 @@
                         Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
                         ToolTip="Badge it up!" />
                 </md:Badged>
-                <Separator />
+                <Separator />-->
                 <Button
                     x:Name="bPlay"
                     Click="bPlay_Click"
@@ -70,7 +70,7 @@
                 <ListBox x:Name="lbMute" SelectionChanged="lbMute_SelectionChanged">
                     <ListBoxItem Content="{md:PackIcon Kind=VolumeMute}" />
                 </ListBox>
-                <Separator />
+                <!--<Separator />
                 <ListBox SelectionMode="Extended">
                     <ListBox.ToolTip>
                         <StackPanel>
@@ -106,7 +106,7 @@
                     Content="{md:PackIcon Kind=EmoticonPoop}"
                     GroupName="YYY"
                     Style="{StaticResource MaterialDesignToolRadioButton}" />
-                <ToggleButton />
+                <ToggleButton />-->
             </ToolBar>
         </ToolBarTray>
         <DataGrid
@@ -114,7 +114,9 @@
             Grid.Row="1"
             Grid.Column="0"
             Grid.ColumnSpan="3"
-            AutoGenerateColumns="False">
+            AllowDrop="True"
+            AutoGenerateColumns="False"
+            Drop="dgMedia_Drop">
             <DataGrid.Resources>
                 <Style x:Key="TextContentCenter" TargetType="TextBlock">
                     <Setter Property="VerticalAlignment" Value="Center" />

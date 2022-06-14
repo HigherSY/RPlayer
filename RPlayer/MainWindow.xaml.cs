@@ -250,5 +250,18 @@ namespace RPlayer
             mediaList.Remove(row);
             row.Dispose();
         }
+
+        private void dgMedia_Drop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                string[] d = e.Data.GetData(DataFormats.FileDrop) as string[];
+                foreach(string p in d)
+                {
+                    if (Path.GetExtension(p) == ".xml") loadMediaListXml(p);
+                    else mediaList.Add(new MyMedia(vlc.LibVLC, p, Path.GetFileName(p)));
+                }
+            }
+        }
     }
 }
