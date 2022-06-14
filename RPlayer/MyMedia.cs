@@ -50,9 +50,11 @@ namespace RPlayer
         }
 
         public MediaEndAction EndAction { get; set; }
+        public string FilePath { get; private set; }
 
         internal MyMedia(LibVLC vlc, string filePath, string safeFileName)
         {
+            FilePath = filePath;
             Name = safeFileName;
             VLCMedia = new Media(vlc, filePath, FromType.FromPath, ":no-video");
             VLCMedia.DurationChanged += VLCMedia_DurationChanged;

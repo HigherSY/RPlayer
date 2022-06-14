@@ -2,9 +2,14 @@
 using Microsoft.Win32;
 using System;
 using System.Collections.ObjectModel;
+using System.IO;
+using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
+using System.Xml;
+using System.Xml.Linq;
 
 namespace RPlayer
 {
@@ -113,18 +118,58 @@ namespace RPlayer
         {
             OpenFileDialog d = new OpenFileDialog
             {
-                Filter = "音乐文件|*.mp3;*.flac;*.wav"
+                Filter = "音乐文件|*.mp3;*.flac;*.wav;|RPlayer 播放列表|*.xml"
             };
 
             if (d.ShowDialog() == true)
             {
-                mediaList.Add(new MyMedia(vlc.LibVLC, d.FileName, d.SafeFileName));
+                switch (d.FilterIndex)
+                {
+                    case 1:
+                        mediaList.Add(new MyMedia(vlc.LibVLC, d.FileName, d.SafeFileName));
+                        break;
+                    case 2:
+                        loadMediaListXml(d.FileName);
+                        break;
+                }
+            }
+        }
+
+        private void loadMediaListXml(string xmlPath)
+        {
+            XElement x = XElement.Load(xmlPath);
+            foreach(var e in x.Elements("Media"))
+            {
+                var m = new MyMedia(vlc.LibVLC, e.Attribute("Path").Value, e.Attribute("Name").Value);
+                m.EndAction = (MediaEndAction)Enum.Parse(typeof(MediaEndAction), e.Attribute("EndAction").Value);
+                mediaList.Add(m);
             }
         }
 
         private void bSave_Click(object sender, RoutedEventArgs e)
         {
+            SaveFileDialog d = new SaveFileDialog
+            {
+                Filter = "RPlayer 播放列表|*.xml"
+            };
 
+            if (d.ShowDialog() != true) return;
+            using (XmlWriter w = new XmlTextWriter(d.FileName, Encoding.UTF8))
+            {
+                w.WriteStartDocument();
+                w.WriteStartElement("MediaList");
+                foreach (MyMedia m in mediaList)
+                {
+                    w.WriteStartElement("Media");
+                    w.WriteAttributeString("Name", m.Name);
+                    w.WriteAttributeString("Path", m.FilePath);
+                    w.WriteAttributeString("EndAction", Enum.GetName(typeof(MediaEndAction), m.EndAction));
+                    w.WriteEndElement();
+                }
+                w.WriteEndElement();
+                w.WriteEndDocument();
+                w.Close();
+            }
         }
 
         private void lbMute_SelectionChanged(object sender, SelectionChangedEventArgs e)
